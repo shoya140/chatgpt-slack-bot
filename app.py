@@ -11,13 +11,16 @@ openai.api_key = os.getenv("OPENAI_API_KEY", "")
 chat_role = os.getenv("CHAT_ROLE", "You are a helpful assistant.")
 
 app = App(token=os.getenv("SLACK_BOT_TOKEN", ""))
+contexts = []
 
 
 @app.message("")
 def message_hello(message, say):
+    global contexts
 
     channel_id = message["channel"]
     message_ts = say("...")["ts"]
+    contexts = contexts + [{"role": "user", "content": message["text"]}]
 
     report = []
     token_count = 0
@@ -25,8 +28,7 @@ def message_hello(message, say):
             model='gpt-4',
             messages=[
                 {"role": "system", "content": chat_role},
-                {"role": "user", "content": message["text"]},
-            ],
+            ] + contexts,
             temperature=0.5,
             stream=True):
 
@@ -41,6 +43,9 @@ def message_hello(message, say):
             update_text(channel_id, message_ts, result)
 
     update_text(channel_id, message_ts, result)
+    contexts = contexts + [{"role": "assistant", "content": result}]
+    if len(contexts) >= 6:
+        contexts = contexts[2:]
 
 
 def update_text(channel_id, message_ts, text):
