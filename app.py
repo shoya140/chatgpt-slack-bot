@@ -15,7 +15,26 @@ contexts = []
 
 
 @app.message("")
-def message_hello(message, say):
+def message_hello(message, say, client):
+    bot_user_id = client.auth_test()["user_id"]
+    if f"<@{bot_user_id}>" in message["text"]:
+        new_role = message["text"].replace(f"<@{bot_user_id}>", "").strip()
+        if new_role == "":
+            new_role = os.getenv("CHAT_ROLE", "You are a helpful assistant.")
+        update_role(new_role, say)
+    else:
+        respond(message, say)
+
+
+def update_role(new_role, say):
+    global contexts
+    global chat_role
+
+    contexts = []
+    chat_role = new_role
+    say("Updated the role and contexts.")
+
+def respond(message, say):
     global contexts
 
     channel_id = message["channel"]
