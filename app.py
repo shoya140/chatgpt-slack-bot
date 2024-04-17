@@ -34,6 +34,7 @@ def update_role(new_role, say):
     chat_role = new_role
     say("Updated the role and contexts.")
 
+
 def respond(message, say):
     global contexts
 
@@ -43,7 +44,7 @@ def respond(message, say):
 
     report = []
     token_count = 0
-    for resp in openai.ChatCompletion.create(
+    for resp in openai.chat.completions.create(
             model='gpt-4-turbo-2024-04-09',
             messages=[
                 {"role": "system", "content": chat_role},
@@ -51,7 +52,7 @@ def respond(message, say):
             temperature=0.5,
             stream=True):
 
-        if not "content" in resp.choices[0].delta:
+        if resp.choices[0].delta.content is None or len(resp.choices[0].delta.content) == 0:
             continue
 
         report.append(resp.choices[0].delta.content)
