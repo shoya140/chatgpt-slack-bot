@@ -39,7 +39,7 @@ def message_hello(message, say, client):
     report = []
     token_count = 0
     for resp in openai.chat.completions.create(
-            model='gpt-4-turbo-2024-04-09',
+            model='gpt-4o',
             messages=[
                 {"role": "system", "content": system_prompt},
             ] + context_messages,
